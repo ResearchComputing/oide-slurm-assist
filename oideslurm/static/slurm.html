@@ -39,23 +39,13 @@
       sbatch builder
     </h1>
         <div id="builder-form-container" ng-controller="SlurmCtrl as ctrl">
+          <input type="text" ng-model="selected"
+                 ng-keypress="onEnter($event)"
+                 typeahead="option for option in options | filter:$viewValue">
+          add new field
           <form novalidate name="slurmForm">
-
-              <accordion>
-                  <accordion-group heading="Group 1">
-                      <formly-form model="formModel" fields="formFields1" ></formly-form>
-                  </accordion-group>
-                  <accordion-group heading="Group 2">
-                      <formly-form model="model" fields="formFields2" ></formly-form>
-                  </accordion-group>
-                  <accordion-group heading="Group 3">
-                      <formly-form model="model" fields="formFields3" ></formly-form>
-                  </accordion-group>
-                  <accordion-group heading="Group 4">
-                      <formly-form model="model" fields="formFields4" ></formly-form>
-                  </accordion-group>
-                  <!--<button type="submit" class="btn btn-primary" ng-disabled="slurmForm.$invalid">Submit</button>!-->
-              </accordion>
+            <formly-form model="formModel" fields="formFields" >
+            </formly-form>
           </form>
         </div>
       </div>
