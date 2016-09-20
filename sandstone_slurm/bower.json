@@ -6,7 +6,6 @@
   "private": true,
   "dependencies": {
 	"angular-sanitize":"",
-	"angular-smart-table":"",
-	"angular-mocks":""
+	"angular-smart-table":""
   }
 }

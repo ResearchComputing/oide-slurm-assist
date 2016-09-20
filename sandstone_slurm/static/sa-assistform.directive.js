@@ -1,3 +1,10 @@
+/**
+  * @module sandstone.slurm.sa-assistform
+  * This directive contains the assist form for generating
+  * sbatch directives. The format, validation, and fields of
+  * the form are dynamic, and determined by a configurable
+  * JSON schema that is loaded from the backend during bootstrap.
+  */
 'use strict';
 
 angular.module('sandstone.slurm')
@@ -54,6 +61,11 @@ angular.module('sandstone.slurm')
         true
       );
 
+      /**
+        * @function getFields
+        * @returns {array} fields A list of available field names for the selected profile.
+        * Empty if $scope.selectedProfile is falsy.
+        */
       $scope.getFields = function() {
         var fields = [];
         if (!$scope.selectedProfile) {
