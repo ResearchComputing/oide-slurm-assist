@@ -109,8 +109,9 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(fields).toEqual([]);
       // Select valid profile
       isolateScope.selectedProfile = 'test1';
+      $scope.$digest();
       fields = isolateScope.getFields();
-      expect(fields).toEqual(['account','time','nodes']);
+      expect(fields).toEqual([timeProp2]);
     });
   });
 });

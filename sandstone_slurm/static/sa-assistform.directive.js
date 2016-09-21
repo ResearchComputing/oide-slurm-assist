@@ -63,8 +63,7 @@ angular.module('sandstone.slurm')
 
       /**
         * @function getFields
-        * @returns {array} fields A list of available field names for the selected profile.
-        * Empty if $scope.selectedProfile is falsy.
+        * @returns {array} fields A list of JSON schema properties to render as fields in the form.
         */
       $scope.getFields = function() {
         var fields = [];
