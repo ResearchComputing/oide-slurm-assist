@@ -1,8 +1,5 @@
 describe('sandstone.slurm.sa-assistform', function() {
-  var $compile;
-  var $scope;
-  var isolateScope;
-  var baseElement;
+  var baseElement = '<div sa-assist-form config="config" sbatch="sbatch" form="form" profile="profile"></div>';
 
   var acctProp = {
     description: "account description",
@@ -52,7 +49,7 @@ describe('sandstone.slurm.sa-assistform', function() {
         }
       },
       test2: {
-        initial: [],
+        initial: ['time','account'],
         schema: {
           properties: {
             account: acctProp,
@@ -82,36 +79,66 @@ describe('sandstone.slurm.sa-assistform', function() {
   beforeEach(module('sandstone.templates'));
   beforeEach(module('sandstone.slurm'));
 
-  beforeEach(inject(function(_$compile_,_$rootScope_) {
-    $compile = _$compile_;
-    $scope = _$rootScope_.$new();
-    $scope.config = {};
-    $scope.sbatch = {};
-    $scope.form = {};
-    $scope.profile = '';
-    baseElement = '<div sa-assist-form config="config" sbatch="sbatch" form="form" profile="profile"></div>';
-  }));
-
   describe('controller', function() {
-    var element, ctrl;
+    var $compile, $scope, isolateScope, element;
 
-    beforeEach(inject(function() {
+    beforeEach(inject(function(_$compile_,_$rootScope_) {
+      $compile = _$compile_;
+      $scope = _$rootScope_.$new();
       $scope.config = angular.copy(testConfig);
+      $scope.sbatch = {};
+      $scope.form = {};
+      $scope.profile = '';
       element = $compile(baseElement)($scope);
       $scope.$digest();
       isolateScope = element.isolateScope();
     }));
 
     it('getFields', function() {
-      isolateScope.selectedProfile = '';
+      // Must provide values for $scope.selectedProfile
+      // and for $scope.sbatch in order to isolate getFields()
+      // functionality.
+      //
       // Should start empty, as '' is selected profile
+      isolateScope.selectedProfile = '';
+      $scope.$digest();
       var fields = isolateScope.getFields();
       expect(fields).toEqual([]);
-      // Select valid profile
+      // Select valid profiles
       isolateScope.selectedProfile = 'test1';
+      isolateScope.sbatch = {
+        'time': '00:30:00',
+        'account': 'test_acct'
+      }
       $scope.$digest();
       fields = isolateScope.getFields();
-      expect(fields).toEqual([timeProp2]);
+      expect(fields).toEqual([timeProp2,acctProp]);
+      isolateScope.selectedProfile = 'test2';
+      isolateScope.sbatch = {
+        'time': '00:30:00'
+      }
+      $scope.$digest();
+      fields = isolateScope.getFields();
+      expect(fields).toEqual([timeProp]);
+      // Select invalid profile
+      // should return empty field array
+      isolateScope.selectedProfile = 'fake';
+      isolateScope.sbatch = {
+        'time': '00:30:00',
+        'account': 'test_acct'
+      }
+      $scope.$digest();
+      fields = isolateScope.getFields();
+      expect(fields).toEqual([]);
     });
+  });
+
+  describe('directive', function() {
+    var $compile, $scope, isolateScope, element;
+
+    beforeEach(inject(function(_$compile_,_$rootScope_) {
+      $compile = _$compile_;
+      $scope = _$rootScope_.$new();
+    }));
   });
 });

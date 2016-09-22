@@ -70,6 +70,10 @@ angular.module('sandstone.slurm')
         if (!$scope.selectedProfile) {
           return fields;
         }
+        if (!($scope.selectedProfile in $scope.config.profiles)) {
+          return fields;
+        }
+
         var schema = $scope
           .config
           .profiles[$scope.selectedProfile]
@@ -135,6 +139,9 @@ angular.module('sandstone.slurm')
         var i, k;
         updateFieldNames();
         if (!$scope.selectedProfile) {
+          return;
+        }
+        if (!($scope.selectedProfile in $scope.config.profiles)) {
           return;
         }
         var prof = $scope.config.profiles[$scope.selectedProfile];
