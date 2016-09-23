@@ -21,19 +21,20 @@ angular.module('sandstone.slurm')
     templateUrl: '/static/slurm/templates/sa-assistform.html',
     controller: function($scope,$element,$timeout) {
       $scope.selectedProfile = '';
-      var fieldNames = [];
+      // Exposed on the scope for unit testing.
+      $scope.fieldNames = [];
 
       var updateFieldNames = function() {
         // Add fields
         for (var k in $scope.sbatch) {
-          if (fieldNames.indexOf(k) < 0) {
-            fieldNames.push(k);
+          if ($scope.fieldNames.indexOf(k) < 0) {
+            $scope.fieldNames.push(k);
           }
         }
         // Remove fields
-        for (var i=fieldNames.length-1;i>=0;i--) {
-          if (!(fieldNames[i] in $scope.sbatch)) {
-            fieldNames.splice(i,1);
+        for (var i=$scope.fieldNames.length-1;i>=0;i--) {
+          if (!($scope.fieldNames[i] in $scope.sbatch)) {
+            $scope.fieldNames.splice(i,1);
           }
         }
       };
@@ -79,8 +80,8 @@ angular.module('sandstone.slurm')
           .profiles[$scope.selectedProfile]
           .schema;
 
-        for (var i=0;i<fieldNames.length;i++) {
-          var s = schema.properties[fieldNames[i]];
+        for (var i=0;i<$scope.fieldNames.length;i++) {
+          var s = schema.properties[$scope.fieldNames[i]];
           fields.push(s);
         }
 
@@ -88,35 +89,56 @@ angular.module('sandstone.slurm')
       };
 
       $scope.addField = function(prop) {
-        fieldNames.push(prop);
-      };
-
-      $scope.removeField = function(field) {
-        var i;
-        i = fieldNames.indexOf(field.title);
-        if (i >= 0) {
-          delete $scope.sbatch[field.title];
-          fieldNames.splice(i, 1);
+        if (prop) {
+          $scope.fieldNames.push(prop);
         }
       };
 
+      /**
+        * @function removeField
+        * @param {object} field The JSON schema property object corresponding to the
+        * form field to be removed.
+        */
+      $scope.removeField = function(field) {
+        var i;
+        i = $scope.fieldNames.indexOf(field.title);
+        if (i >= 0) {
+          delete $scope.sbatch[field.title];
+          $scope.fieldNames.splice(i, 1);
+        }
+      };
+
+      /**
+        * @function resetDefaults
+        * This function is only responsible for clearing form data. Reinitializing
+        * valid start state for the assist form occurs in $scope.selectProfile().
+        */
       $scope.resetDefaults = function() {
         $scope.fieldNames = [];
         $scope.sbatch = {};
         $scope.selectProfile();
       };
 
+      /**
+        * @function onTypeaheadKey
+        * This is the event handler bound to the typeahead field, called
+        * when the user hits enter.
+        */
       $scope.onTypeaheadKey = function($event) {
         if ($event.which===13){
           var sel = $scope.selectedProp;
           var props = $scope.getProperties();
           if (props.indexOf(sel) >= 0) {
-            fieldNames.push(sel);
+            $scope.fieldNames.push(sel);
             $scope.selectedProp = '';
           }
         }
       };
 
+      /**
+        * @function getProperties
+        * @returns {array} props List of JSON schema property names for the selected profile.
+        */
       $scope.getProperties = function() {
         var props = [];
         try {
@@ -129,6 +151,10 @@ angular.module('sandstone.slurm')
         return props;
       };
 
+      /**
+        * @function getProfiles
+        * @returns {array} profiles A list of available profiles
+        */
       $scope.getProfiles = function() {
         var keys = [];
         for (var k in $scope.config.profiles) keys.push(k);
@@ -148,8 +174,8 @@ angular.module('sandstone.slurm')
         if (prof.schema.hasOwnProperty('required')) {
           for (i=0;i<prof.schema.required.length;i++) {
             k = prof.schema.required[i];
-            if (fieldNames.indexOf(k) < 0) {
-              fieldNames.push(k);
+            if ($scope.fieldNames.indexOf(k) < 0) {
+              $scope.fieldNames.push(k);
             }
             if (prof.schema.properties[k].hasOwnProperty('default')) {
               if (prof.schema.properties[k].readonly) {
@@ -163,8 +189,8 @@ angular.module('sandstone.slurm')
         if (prof.schema.hasOwnProperty('initial')) {
           for (i=0;i<prof.schema.initial.length;i++) {
             k = prof.schema.initial[i];
-            if (fieldNames.indexOf(k) < 0) {
-              fieldNames.push(k);
+            if ($scope.fieldNames.indexOf(k) < 0) {
+              $scope.fieldNames.push(k);
             }
             if (prof.schema.properties[k].hasOwnProperty('default')) {
               if (!$scope.sbatch.hasOwnProperty(k)) {
