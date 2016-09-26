@@ -24,7 +24,12 @@ angular.module('sandstone.slurm')
       // Exposed on the scope for unit testing.
       $scope.fieldNames = [];
 
-      var updateFieldNames = function() {
+      /**
+        * @function updateFieldNames
+        * [deprecated?] Compares $scope.fieldNames with $scope.sbatch,
+        * and reconciles differences.
+        */
+      $scope.updateFieldNames = function() {
         // Add fields
         for (var k in $scope.sbatch) {
           if ($scope.fieldNames.indexOf(k) < 0) {
@@ -50,16 +55,6 @@ angular.module('sandstone.slurm')
             $scope.selectedProfile = '';
           }
         }
-      );
-
-      $scope.$watch(
-        function() {
-          return $scope.sbatch;
-        },
-        function(newVal) {
-          updateFieldNames();
-        },
-        true
       );
 
       /**
@@ -161,41 +156,87 @@ angular.module('sandstone.slurm')
         return keys;
       };
 
+      /**
+        * @function selectProfile
+        * Configures the assist form for the currently selected
+        * profile. Existing form fields/values will be maintained
+        * unless they present a conflict with the new schema, in which
+        * case the inconsistencies will be reconciled.
+        */
       $scope.selectProfile = function() {
-        var i, k;
-        updateFieldNames();
+        // No profile
         if (!$scope.selectedProfile) {
           return;
         }
+        // Invalid profile
         if (!($scope.selectedProfile in $scope.config.profiles)) {
           return;
         }
+
+        // Retrieve profile config, and apply required and intitial fields
         var prof = $scope.config.profiles[$scope.selectedProfile];
-        if (prof.schema.hasOwnProperty('required')) {
-          for (i=0;i<prof.schema.required.length;i++) {
-            k = prof.schema.required[i];
-            if ($scope.fieldNames.indexOf(k) < 0) {
-              $scope.fieldNames.push(k);
-            }
-            if (prof.schema.properties[k].hasOwnProperty('default')) {
-              if (prof.schema.properties[k].readonly) {
-                $scope.sbatch[k] = prof.schema.properties[k].default;
-              } else if (!$scope.sbatch.hasOwnProperty(k)) {
-                $scope.sbatch[k] = prof.schema.properties[k].default;
-              }
+        $scope.applyRequired(prof);
+        $scope.applyInitial(prof);
+      };
+
+      /**
+        * @function applyRequired
+        * @param {object} profile The config for the current profile
+        * Applies required fields for current profile. Reconciles any
+        * inconsistencies encountered.
+        */
+      $scope.applyRequired = function(profile) {
+        var i, k;
+        // Nothing to apply
+        if (!profile.schema.hasOwnProperty('required')) {
+          return;
+        }
+        // Apply required fields
+        for (i=0;i<profile.schema.required.length;i++) {
+          k = profile.schema.required[i];
+          // Add field if not already in form
+          if ($scope.fieldNames.indexOf(k) < 0) {
+            $scope.fieldNames.push(k);
+          }
+          // Apply default values for field if present
+          if (profile.schema.properties[k].hasOwnProperty('default')) {
+            // If a field has a readonly default, this value must be
+            // applied even if a current value exists.
+            if (profile.schema.properties[k].readonly) {
+              $scope.sbatch[k] = profile.schema.properties[k].default;
+            } else if (!$scope.sbatch.hasOwnProperty(k)) {
+              // If the default is not on a readonly field, apply it if
+              // no current value exists.
+              $scope.sbatch[k] = profile.schema.properties[k].default;
             }
           }
         }
-        if (prof.schema.hasOwnProperty('initial')) {
-          for (i=0;i<prof.schema.initial.length;i++) {
-            k = prof.schema.initial[i];
-            if ($scope.fieldNames.indexOf(k) < 0) {
-              $scope.fieldNames.push(k);
-            }
-            if (prof.schema.properties[k].hasOwnProperty('default')) {
-              if (!$scope.sbatch.hasOwnProperty(k)) {
-                $scope.sbatch[k] = prof.schema.properties[k].default;
-              }
+      };
+
+      /**
+        * @function applyInitial
+        * @param {object} profile The config for the current profile
+        * Applies initial fields for current profile. Existing data will
+        * be maintained when applying default values.
+        */
+      $scope.applyInitial = function(profile) {
+        var i, k;
+        // Nothing to apply
+        if (!profile.hasOwnProperty('initial')) {
+          return;
+        }
+        // Apply initial fields
+        for (i=0;i<profile.initial.length;i++) {
+          k = profile.initial[i];
+          // Add fields if not already in form
+          if ($scope.fieldNames.indexOf(k) < 0) {
+            $scope.fieldNames.push(k);
+          }
+          // Apply defaults
+          if (profile.schema.properties[k].hasOwnProperty('default')) {
+            // Apply default value for fields if no current value exists.
+            if (!$scope.sbatch.hasOwnProperty(k)) {
+              $scope.sbatch[k] = profile.schema.properties[k].default;
             }
           }
         }

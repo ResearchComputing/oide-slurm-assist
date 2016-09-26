@@ -23,13 +23,21 @@ describe('sandstone.slurm.sa-assistform', function() {
     pattern: "^(\d+-)?(\d+):(\d+):(\d+)$",
     subtype: "duration",
     title: "time",
-    type: "string"
+    type: "string",
+    readonly: true
   }
   var nodeProp = {
     description: "node description",
     minimum: 1,
     title: "nodes",
     type: "number"
+  }
+  var nodeProp2 = {
+    description: "node description",
+    minimum: 1,
+    title: "nodes",
+    type: "number",
+    default: 3
   }
   var testConfig = {
     features: [],
@@ -55,6 +63,18 @@ describe('sandstone.slurm.sa-assistform', function() {
             account: acctProp,
             time: timeProp,
             node: nodeProp
+          },
+          title: "SlurmConfig",
+          type: "object"
+        }
+      },
+      test3: {
+        initial: ['time','node'],
+        schema: {
+          properties: {
+            account: acctProp,
+            time: timeProp,
+            node: nodeProp2
           },
           title: "SlurmConfig",
           type: "object"
@@ -211,11 +231,92 @@ describe('sandstone.slurm.sa-assistform', function() {
 
     it('getProfiles', function() {
       var profiles = isolateScope.getProfiles();
-      expect(profiles).toEqual(['test1','test2','custom']);
+      expect(profiles).toEqual(['test1','test2','test3','custom']);
     });
 
     it('selectProfile', function() {
+      spyOn(isolateScope,'applyRequired');
+      spyOn(isolateScope,'applyInitial');
+      // No profile selected
+      isolateScope.selectedProfile = '';
+      isolateScope.selectProfile();
+      expect(isolateScope.selectedProfile).toEqual('');
+      expect(isolateScope.applyRequired.calls.count()).toEqual(0);
+      expect(isolateScope.applyInitial.calls.count()).toEqual(0);
+      // Invalid profile selected
+      isolateScope.selectedProfile = 'invalid';
+      isolateScope.selectProfile();
+      expect(isolateScope.selectedProfile).toEqual('invalid');
+      expect(isolateScope.applyRequired.calls.count()).toEqual(0);
+      expect(isolateScope.applyInitial.calls.count()).toEqual(0);
+      // Valid profile selected
+      isolateScope.selectedProfile = 'test2';
+      isolateScope.applyRequired.and.returnValue(true);
+      isolateScope.applyInitial.and.returnValue(true);
+      isolateScope.selectProfile();
+      expect(isolateScope.selectedProfile).toEqual('test2');
+      expect(isolateScope.applyRequired.calls.count()).toEqual(1);
+      expect(isolateScope.applyInitial.calls.count()).toEqual(1);
+    });
 
+    it('applyRequired', function() {
+      // No required
+      var profile = testConfig.profiles['test2'];
+      isolateScope.fieldNames = [];
+      isolateScope.sbatch = {};
+      isolateScope.applyRequired(profile);
+      expect(isolateScope.fieldNames).toEqual([]);
+      expect(isolateScope.sbatch).toEqual({});
+      // Required, no conflict
+      profile = testConfig.profiles['test1'];
+      isolateScope.fieldNames = [];
+      isolateScope.sbatch = {};
+      isolateScope.applyRequired(profile);
+      expect(isolateScope.fieldNames).toEqual(['account','time']);
+      expect(isolateScope.sbatch).toEqual({'time':'00:30:00'});
+      // Required, conflict
+      profile = testConfig.profiles['test1'];
+      isolateScope.fieldNames = ['time','account','node'];
+      isolateScope.sbatch = {
+        'time':'00:45:00',
+        'account': 'test_acct1'
+      };
+      isolateScope.applyRequired(profile);
+      expect(isolateScope.fieldNames).toEqual(['time','account','node']);
+      expect(isolateScope.sbatch).toEqual({
+        'time':'00:30:00',
+        'account': 'test_acct1'
+      });
+    });
+
+    it('applyInitial', function() {
+      // No initial
+      var profile = testConfig.profiles['custom'];
+      isolateScope.fieldNames = [];
+      isolateScope.sbatch = {};
+      isolateScope.applyInitial(profile);
+      expect(isolateScope.fieldNames).toEqual([]);
+      expect(isolateScope.sbatch).toEqual({});
+      // Initial, no conflict
+      var profile = testConfig.profiles['test3'];
+      isolateScope.fieldNames = [];
+      isolateScope.sbatch = {};
+      isolateScope.applyInitial(profile);
+      expect(isolateScope.fieldNames).toEqual(['time','node']);
+      expect(isolateScope.sbatch).toEqual({'node': 3});
+      // Initial, conflict
+      profile = testConfig.profiles['test3'];
+      isolateScope.fieldNames = ['node','account'];
+      isolateScope.sbatch = {
+        'account':'test_acct1',
+        'node': 4
+      };
+      isolateScope.applyInitial(profile);
+      expect(isolateScope.fieldNames).toEqual(['node','account','time']);
+      expect(isolateScope.sbatch).toEqual({
+        'account':'test_acct1',
+        'node': 4
+      });
     });
   });
 
