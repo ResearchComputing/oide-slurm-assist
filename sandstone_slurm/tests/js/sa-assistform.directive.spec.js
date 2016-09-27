@@ -10,7 +10,7 @@ describe('sandstone.slurm.sa-assistform', function() {
   var timeProp = {
     description: "time description",
     minDuration: 0,
-    pattern: "^(\d+-)?(\d+):(\d+):(\d+)$",
+    pattern: /^(\d+-)?(\d+):(\d+):(\d+)$/,
     subtype: "duration",
     title: "time",
     type: "string"
@@ -20,7 +20,7 @@ describe('sandstone.slurm.sa-assistform', function() {
     description: "time description",
     minDuration: 0,
     maxDuration: 60,
-    pattern: "^(\d+-)?(\d+):(\d+):(\d+)$",
+    pattern: /^(\d+-)?(\d+):(\d+):(\d+)$/,
     subtype: "duration",
     title: "time",
     type: "string",
@@ -44,7 +44,7 @@ describe('sandstone.slurm.sa-assistform', function() {
     gres: [],
     profiles: {
       test1: {
-        initial: ['time'],
+        // initial: ['time'],
         schema: {
           properties: {
             account: acctProp,
@@ -322,10 +322,65 @@ describe('sandstone.slurm.sa-assistform', function() {
 
   describe('directive', function() {
     var $compile, $scope, isolateScope, element;
+    // Grab form fields from template html
+    var getFieldsFromTpl = function(tpl) {
+      var matches = tpl.match(/ngInclude([\s\S]*?)end ngRepeat: field in getFields/g);
+      return matches;
+    };
 
     beforeEach(inject(function(_$compile_,_$rootScope_) {
       $compile = _$compile_;
       $scope = _$rootScope_.$new();
+      $scope.config = angular.copy(testConfig);
+      $scope.sbatch = {};
+      $scope.form = {};
+      $scope.profile = '';
+      element = $compile(baseElement)($scope);
+      $scope.$digest();
+      isolateScope = element.isolateScope();
     }));
+
+    it('select a profile', function() {
+      var tpl, fields;
+      // All profiles are listed, no profile is selected
+      isolateScope.selectedProfile = '';
+      $scope.$digest();
+      tpl = element.html();
+      expect(tpl).toContain('string:test1');
+      expect(tpl).toContain('string:test2');
+      expect(tpl).toContain('string:test3');
+      expect(tpl).toContain('string:custom');
+      // Select first profile
+      isolateScope.selectedProfile = 'test1';
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(fields.length).toEqual(2);
+      expect(isolateScope.selectedProfile).toEqual('test1');
+      expect(isolateScope.fieldNames).toEqual(['account','time'])
+      // First field should be account, no value
+      expect(fields[0]).toContain('account');
+      expect(isolateScope.sbatch.hasOwnProperty('account')).toBeFalsy();
+      // validate field setup
+      expect(fields[0]).toContain('name="account"');
+      expect(fields[0]).toContain('ng-required="true"');
+      // validate enum
+      expect(fields[0]).toContain('string:test_acct1');
+      expect(fields[0]).toContain('string:test_acct2');
+      // Second field should be time, with value
+      expect(fields[1]).toContain('time');
+      expect(isolateScope.sbatch.time).toEqual('00:30:00');
+      expect($scope.sbatch.time).toEqual('00:30:00');
+      // validate field setup
+      expect(fields[1]).toContain('name="time"');
+      expect(fields[1]).toContain('ng-required="true"');
+      expect(fields[1]).toContain('readonly="readonly"');
+      expect(fields[1]).toContain('min-duration');
+      expect(fields[1]).toContain('max-duration');
+      expect(fields[1]).toContain('ng-pattern=');
+      expect(fields[1]).toContain('ng-model="sbatch[field.title]"');
+      expect(fields[1]).toContain('time: time description');
+      
+    });
   });
 });
