@@ -35,7 +35,7 @@ describe('sandstone.slurm.sa-assistform', function() {
   var nodeProp2 = {
     description: "node description",
     minimum: 1,
-    title: "nodes",
+    title: "node",
     type: "number",
     default: 3
   }
@@ -380,7 +380,62 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(fields[1]).toContain('ng-pattern=');
       expect(fields[1]).toContain('ng-model="sbatch[field.title]"');
       expect(fields[1]).toContain('time: time description');
-      
+
+      // Select second profile
+      isolateScope.selectedProfile = 'test3';
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(fields.length).toEqual(3);
+      expect(isolateScope.selectedProfile).toEqual('test3');
+      expect(isolateScope.fieldNames).toEqual(['account','time','node'])
+      // First field should be account, no value
+      expect(fields[0]).toContain('account');
+      expect(isolateScope.sbatch.hasOwnProperty('account')).toBeFalsy();
+      // Second field should be time, with value
+      expect(fields[1]).toContain('time');
+      expect(isolateScope.sbatch.time).toEqual('00:30:00');
+      expect($scope.sbatch.time).toEqual('00:30:00');
+      expect(fields[1]).toContain('name="time"');
+      // Third field should be node, with value
+      expect(fields[2]).toContain('node');
+      expect(isolateScope.sbatch.node).toEqual(3);
+      expect($scope.sbatch.node).toEqual(3);
+      expect(fields[2]).toContain('name="node"');
+
+      // Select third profile
+      isolateScope.selectedProfile = 'custom';
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(fields.length).toEqual(3);
+      expect(isolateScope.selectedProfile).toEqual('custom');
+      expect(isolateScope.fieldNames).toEqual(['account','time','node'])
+      // First field should be account, no value
+      expect(fields[0]).toContain('account');
+      expect(isolateScope.sbatch.hasOwnProperty('account')).toBeFalsy();
+      // Second field should be time, with value
+      expect(isolateScope.sbatch.time).toEqual('00:30:00');
+      expect($scope.sbatch.time).toEqual('00:30:00');
+      expect(fields[1]).toContain('name="time"');
+      // Third field should be node, with value
+      expect(isolateScope.sbatch.node).toEqual(3);
+      expect($scope.sbatch.node).toEqual(3);
+      expect(fields[2]).toContain('name="node"');
+
+      // Conflicting required values upon switch
+      isolateScope.selectedProfile = 'test1';
+      isolateScope.sbatch.time = '00:45:00';
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(fields.length).toEqual(3);
+      expect(isolateScope.selectedProfile).toEqual('test1');
+      expect(isolateScope.fieldNames).toEqual(['account','time','node'])
+      // Second field should be time, with required value
+      expect(isolateScope.sbatch.time).toEqual('00:30:00');
+      expect($scope.sbatch.time).toEqual('00:30:00');
+      expect(fields[1]).toContain('name="time"');
     });
   });
 });
