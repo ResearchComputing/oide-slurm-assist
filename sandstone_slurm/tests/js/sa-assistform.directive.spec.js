@@ -6,7 +6,7 @@ describe('sandstone.slurm.sa-assistform', function() {
     enum: ['test_acct1','test_acct2'],
     title: "account",
     type: "string"
-  }
+  };
   var timeProp = {
     description: "time description",
     minDuration: 0,
@@ -14,7 +14,7 @@ describe('sandstone.slurm.sa-assistform', function() {
     subtype: "duration",
     title: "time",
     type: "string"
-  }
+  };
   var timeProp2 = {
     default: "00:30:00",
     description: "time description",
@@ -25,20 +25,26 @@ describe('sandstone.slurm.sa-assistform', function() {
     title: "time",
     type: "string",
     readonly: true
-  }
+  };
   var nodeProp = {
     description: "node description",
     minimum: 1,
     title: "nodes",
     type: "number"
-  }
+  };
   var nodeProp2 = {
     description: "node description",
     minimum: 1,
     title: "node",
     type: "number",
     default: 3
-  }
+  };
+  var invalidProp = {
+    description: "invalid description",
+    minimum: 1,
+    title: "invalid",
+    type: "number"
+  };
   var testConfig = {
     features: [],
     gres: [],
@@ -93,7 +99,7 @@ describe('sandstone.slurm.sa-assistform', function() {
         }
       }
     }
-  }
+  };
 
   beforeEach(module('sandstone'));
   beforeEach(module('sandstone.templates'));
@@ -325,7 +331,17 @@ describe('sandstone.slurm.sa-assistform', function() {
     // Grab form fields from template html
     var getFieldsFromTpl = function(tpl) {
       var matches = tpl.match(/ngInclude([\s\S]*?)end ngRepeat: field in getFields/g);
+      if (!matches) {
+        return [];
+      }
       return matches;
+    };
+
+    var renderTpl = function(scope,el) {
+      var tpl;
+      scope.$digest();
+      tpl = el.html();
+      return tpl;
     };
 
     beforeEach(inject(function(_$compile_,_$rootScope_) {
@@ -484,6 +500,49 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(fields.length).toEqual(3);
       expect(isolateScope.selectedProp).toEqual('');
       expect(fields[2]).toContain('name="nodes"');
+    });
+
+    it('remove a field', function() {
+      // Profile must be selected for form to show
+      isolateScope.selectedProfile = 'test2';
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual(['time','account']);
+      isolateScope.sbatch.time = '00:45:00';
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.sbatch).toEqual({'time':'00:45:00'});
+      expect(fields.length).toEqual(2);
+      // Remove invalid field
+      isolateScope.removeField(invalidProp);
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual(['time','account']);
+      expect(isolateScope.sbatch).toEqual({'time':'00:45:00'});
+      expect(fields.length).toEqual(2);
+      // Remove valid field with no value
+      isolateScope.removeField(acctProp);
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual(['time']);
+      expect(isolateScope.sbatch).toEqual({'time':'00:45:00'});
+      expect(fields.length).toEqual(1);
+      // Remove valid field with value
+      isolateScope.removeField(timeProp);
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual([]);
+      expect(isolateScope.sbatch).toEqual({});
+      expect(fields.length).toEqual(0);
+    });
+
+    it('reset the form to profile defaults', function() {
+
     });
   });
 });
