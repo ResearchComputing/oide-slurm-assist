@@ -437,5 +437,53 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect($scope.sbatch.time).toEqual('00:30:00');
       expect(fields[1]).toContain('name="time"');
     });
+
+    it('add a field to the form', function() {
+      var mockEvent = {which: 13};
+      // Profile must be selected to add fields
+      isolateScope.selectedProfile = 'test1';
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual(['account','time']);
+      expect(fields.length).toEqual(2);
+      // Add a field, selectedProp empty
+      isolateScope.selectedProp = '';
+      isolateScope.onTypeaheadKey(mockEvent);
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual(['account','time']);
+      expect(fields.length).toEqual(2);
+      expect(isolateScope.selectedProp).toEqual('');
+      // Add a field, selectedProp invalid
+      isolateScope.selectedProp = 'invalid';
+      isolateScope.onTypeaheadKey(mockEvent);
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual(['account','time']);
+      expect(fields.length).toEqual(2);
+      expect(isolateScope.selectedProp).toEqual('invalid');
+      // Add a field, selectedProp already in form
+      isolateScope.selectedProp = 'time';
+      isolateScope.onTypeaheadKey(mockEvent);
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual(['account','time']);
+      expect(fields.length).toEqual(2);
+      expect(isolateScope.selectedProp).toEqual('time');
+      // Add a field, selectedProp valid
+      isolateScope.selectedProp = 'node';
+      isolateScope.onTypeaheadKey(mockEvent);
+      $scope.$digest();
+      tpl = element.html()
+      fields = getFieldsFromTpl(tpl);
+      expect(isolateScope.fieldNames).toEqual(['account','time','node']);
+      expect(fields.length).toEqual(3);
+      expect(isolateScope.selectedProp).toEqual('');
+      expect(fields[2]).toContain('name="nodes"');
+    });
   });
 });
