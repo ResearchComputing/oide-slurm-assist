@@ -27,7 +27,46 @@ describe('sandstone.slurm.sa-sbatchscript', function() {
     });
 
     it('compileScript', function() {
-
+      var dirs, expd;
+      // Empty directives, empty script
+      dirs = {};
+      isolateScope.script = '';
+      expd = '#!/bin/bash\n';
+      isolateScope.compileScript(dirs);
+      expect(isolateScope.directives).toEqual('#!/bin/bash\n');
+      expect(isolateScope.sbatchScript).toEqual(expd);
+      // Empty directives, script
+      dirs = {};
+      isolateScope.script = 'test script\n';
+      expd = '#!/bin/bash\ntest script\n';
+      isolateScope.compileScript(dirs);
+      expect(isolateScope.directives).toEqual('#!/bin/bash\n');
+      expect(isolateScope.sbatchScript).toEqual(expd);
+      // Single directive, script
+      dirs = {'test':'test'};
+      isolateScope.script = 'test script\n';
+      expd = '#!/bin/bash\n#SBATCH --test=test\ntest script\n';
+      isolateScope.compileScript(dirs);
+      expect(isolateScope.directives).toEqual('#!/bin/bash\n#SBATCH --test=test\n');
+      expect(isolateScope.sbatchScript).toEqual(expd);
+      // Multiple directives, script
+      dirs = {
+        'testStr':'test',
+        'testEmpty': '',
+        'testBool': true,
+        'testFalse': false,
+        'testNumber': 4,
+        'testUndef': undefined
+      };
+      isolateScope.script = 'test script\n';
+      expd = '#!/bin/bash\n';
+      expd += '#SBATCH --testStr=test\n';
+      expd += '#SBATCH --testBool\n';
+      expd += '#SBATCH --testNumber=4\n';
+      isolateScope.compileScript(dirs);
+      expect(isolateScope.directives).toEqual(expd);
+      expd += 'test script\n';
+      expect(isolateScope.sbatchScript).toEqual(expd);
     });
   });
 
