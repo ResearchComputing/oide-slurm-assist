@@ -573,14 +573,5 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(isolateScope.sbatch).toEqual({});
       expect(fields.length).toEqual(0);
     });
-
-    it('renders form from external $scope changes', function() {
-      isolateScope.selectedProfile = 'test1';
-      $scope.$digest();
-      tpl = element.html()
-      fields = getFieldsFromTpl(tpl);
-      expect(isolateScope.fieldNames).toEqual(['account','time']);
-      expect(fields.length).toEqual(2);
-    });
   });
 });
