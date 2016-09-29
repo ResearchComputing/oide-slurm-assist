@@ -18,31 +18,16 @@ angular.module('sandstone.slurm')
       form: '=',
       selectedProfile: '=profile'
     },
-    templateUrl: '/static/slurm/templates/sa-assistform.html',
-    controller: function($scope,$element,$timeout) {
+    templateUrl: '/static/slurm/sa-assistform/sa-assistform.html',
+    controller: function($scope,$element,$timeout,$rootScope) {
+      // Listen for clear form event, used when a script is loaded.
+      $rootScope.$on('sa:set-form-contents', function(e, prof, dirs) {
+        $scope.setFormContents(prof, dirs);
+      });
+
       $scope.selectedProfile = '';
       // Exposed on the scope for unit testing.
       $scope.fieldNames = [];
-
-      /**
-        * @function updateFieldNames
-        * [deprecated?] Compares $scope.fieldNames with $scope.sbatch,
-        * and reconciles differences.
-        */
-      $scope.updateFieldNames = function() {
-        // Add fields
-        for (var k in $scope.sbatch) {
-          if ($scope.fieldNames.indexOf(k) < 0) {
-            $scope.fieldNames.push(k);
-          }
-        }
-        // Remove fields
-        for (var i=$scope.fieldNames.length-1;i>=0;i--) {
-          if (!($scope.fieldNames[i] in $scope.sbatch)) {
-            $scope.fieldNames.splice(i,1);
-          }
-        }
-      };
 
       $scope.$watch(
         function() {
@@ -112,6 +97,21 @@ angular.module('sandstone.slurm')
         $scope.fieldNames = [];
         $scope.sbatch = {};
         $scope.selectProfile();
+      };
+
+      /**
+        * @function setFormContents
+        * @param {string} prof The name of the profile to select
+        * @param {object} dirs The sbatch directives to set
+        * This function sets the form to a specified state.
+        */
+      $scope.setFormContents = function(prof, dirs) {
+        $scope.selectedProfile = prof;
+        $scope.sbatch = dirs;
+        $scope.fieldNames = [];
+        for (var k in $scope.sbatch) {
+          $scope.fieldNames.push(k);
+        }
       };
 
       /**

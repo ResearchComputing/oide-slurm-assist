@@ -2,7 +2,7 @@
 
 angular.module('sandstone.slurm')
 
-.controller('ScheduleCtrl', ['$log','$modal','ScheduleService',function($log,$modal,ScheduleService) {
+.controller('ScheduleCtrl', ['$log','$modal','$rootScope','ScheduleService',function($log,$modal,$rootScope,ScheduleService) {
   var self = this;
 
   self.sbatch = {};
@@ -159,8 +159,7 @@ angular.module('sandstone.slurm')
             }
           }
           // Push to interface
-          self.profile = matchedProfile;
-          self.sbatch = dirs;
+          $rootScope.$emit('sa:set-form-contents', matchedProfile, dirs);
           self.script = renderScript;
         });
       },

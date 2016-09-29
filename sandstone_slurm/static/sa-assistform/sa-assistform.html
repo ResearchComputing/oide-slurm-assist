@@ -55,7 +55,7 @@
       <legend>&nbsp;</legend>
       <div
         ng-repeat="field in getFields() track by $index"
-        ng-include="'/static/slurm/templates/fields/sa-field-' + field.type + (field.subtype || '') + '.html'">
+        ng-include="'/static/slurm/sa-assistform/fields/sa-field-' + field.type + (field.subtype || '') + '.html'">
       </div>
     </fieldset>
   </form>

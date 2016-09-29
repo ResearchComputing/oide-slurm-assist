@@ -120,6 +120,12 @@ describe('sandstone.slurm.sa-assistform', function() {
       isolateScope = element.isolateScope();
     }));
 
+    it('$rootScope.$on: sa:set-form-contents', function() {
+      spyOn(isolateScope,'setFormContents');
+      $scope.$emit('sa:set-form-contents','test1',{'time':'00:30:00'});
+      expect(isolateScope.setFormContents.calls.argsFor(0)).toEqual(['test1',{'time':'00:30:00'}]);
+    });
+
     it('$watch: $scope.selectedProfile', function() {
       spyOn(isolateScope,'selectProfile');
       isolateScope.selectedProfile = 'test1';
@@ -198,6 +204,33 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(isolateScope.fieldNames).toEqual([]);
       expect(isolateScope.sbatch).toEqual({});
       expect(isolateScope.selectProfile).toHaveBeenCalled();
+    });
+
+    it('setFormContents', function() {
+      var prof, dirs;
+      // Start with empty form
+      prof = 'test1';
+      dirs = {time: '00:30:00'};
+      isolateScope.selectedProfile = '';
+      isolateScope.fieldNames = [];
+      isolateScope.sbatch = {};
+      isolateScope.setFormContents(prof,dirs);
+      expect(isolateScope.selectedProfile).toEqual('test1');
+      expect(isolateScope.fieldNames).toEqual(['time']);
+      expect(isolateScope.sbatch).toEqual({time: '00:30:00'});
+      // Start with populated form, same prof, different dirs
+      dirs = {account: 'test_acct1'};
+      isolateScope.setFormContents(prof,dirs);
+      expect(isolateScope.selectedProfile).toEqual('test1');
+      expect(isolateScope.fieldNames).toEqual(['account']);
+      expect(isolateScope.sbatch).toEqual({account: 'test_acct1'});
+      // Start populated, diff prof, diff dirs
+      prof = 'test3'
+      dirs = {time: '00:30:00', account: 'test_acct2'};
+      isolateScope.setFormContents(prof,dirs);
+      expect(isolateScope.selectedProfile).toEqual('test3');
+      expect(isolateScope.fieldNames).toEqual(['time','account']);
+      expect(isolateScope.sbatch).toEqual({time: '00:30:00', account: 'test_acct2'});
     });
 
     it('onTypeaheadKey', function() {
