@@ -23,7 +23,7 @@ APP_SPECIFICATION = {
         'status.controller.js',
         'sa-duration.directive.js',
         'sa-assistform/sa-assistform.directive.js',
-        'sa-sbatchscript.directive.js',
+        'sa-sbatchscript/sa-sbatchscript.directive.js',
         'typeaheadfocus.directive.js',
     ),
 }
