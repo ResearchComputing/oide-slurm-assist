@@ -33,6 +33,10 @@ angular.module('sandstone.slurm')
       $scope.$watch('sbatch', function(newVal, oldVal) {
         $scope.compileScript(newVal);
       }, true);
+
+      $scope.$watch('script', function(newVal, oldVal) {
+        $scope.compileScript($scope.sbatch);
+      }, true);
     }
   };
 }]);
