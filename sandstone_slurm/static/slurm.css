@@ -15,7 +15,8 @@
   margin-top: 0;
 }*/
 
-.main {
+.sa-main {
+  padding: 20px;
   overflow: auto;
 }
 
@@ -121,6 +122,11 @@
   height: 42px;
   background-color: transparent;
   font-size: initial;
+}
+
+#sa-assist-form .dropdown-menu[typeahead-popup] {
+  overflow: auto;
+  max-height: 350px;
 }
 
 /*

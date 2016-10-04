@@ -41,14 +41,24 @@
         class="form-group"
         ng-show="selectedProfile!=''">
         <label>Add Directives</label>
-        <input
-          typeahead-focus
-          type="text"
-          class="form-control"
-          ng-keypress="onTypeaheadKey($event)"
-          ng-model="selectedProp"
-          typeahead="p for p in getProperties() | filter:$viewValue:emptyOrMatch">
-        <span class="pull-right help-block">Hit enter to add</span>
+        <div class="input-group">
+          <input
+            typeahead-focus
+            type="text"
+            class="form-control"
+            ng-model="selectedProp"
+            typeahead="p for p in getProperties() | filter:$viewValue:emptyOrMatch">
+          <div class="input-group-addon sa-assist-help-btn">
+            <button
+              class="btn"
+              tooltip-placement="left"
+              tooltip="Add a new directive"
+              ng-click="addField()"
+              ng-disabled="!propValid()">
+              <i class="fa fa-plus" aria-hidden="true"></i>
+            </button>
+          </div>
+        </div>
       </div>
     </fieldset>
     <fieldset>
