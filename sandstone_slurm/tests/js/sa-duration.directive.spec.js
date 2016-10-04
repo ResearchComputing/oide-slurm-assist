@@ -26,7 +26,7 @@ describe('sandstone.slurm.sa-duration', function() {
       isolateScope = element.isolateScope();
     }));
 
-    it('correctly validates the inputted duration', function() {
+    it('correctly validates min and max', function() {
       var el, tpl;
       el = element[0];
       // No min
@@ -49,7 +49,12 @@ describe('sandstone.slurm.sa-duration', function() {
       setValue('00:05:00');
       tpl = el.outerHTML;
       expect(tpl).toContain('ng-invalid-sa-duration');
-      // MM
+    });
+
+    it('correctly validates MM format', function() {
+      var el, tpl;
+      el = element[0];
+
       $scope.minDuration = 1;
       $scope.maxDuration = 4;
       // valid
@@ -63,7 +68,12 @@ describe('sandstone.slurm.sa-duration', function() {
       setValue('05');
       tpl = el.outerHTML;
       expect(tpl).toContain('ng-invalid-sa-duration');
-      // MM:SS
+    });
+
+    it('correctly validates MM:SS format', function() {
+      var el, tpl;
+      el = element[0];
+
       $scope.minDuration = 1;
       $scope.maxDuration = 4;
       // valid
@@ -84,10 +94,58 @@ describe('sandstone.slurm.sa-duration', function() {
       setValue('05:00');
       tpl = el.outerHTML;
       expect(tpl).toContain('ng-invalid-sa-duration');
-      // HH:MM:SS
+    });
 
-      // DD-HH:MM:SS
+    it('correctly validates HH:MM:SS format', function() {
+      var el, tpl;
+      el = element[0];
 
+      $scope.minDuration = 30;
+      $scope.maxDuration = 90;
+      // valid
+      setValue('01:29:00');
+      tpl = el.outerHTML;
+      expect(tpl).not.toContain('ng-invalid-sa-duration');
+      setValue('00:79:00');
+      tpl = el.outerHTML;
+      expect(tpl).not.toContain('ng-invalid-sa-duration');
+      // invalid min
+      setValue('0:29:0');
+      tpl = el.outerHTML;
+      expect(tpl).toContain('ng-invalid-sa-duration');
+      // invalid max
+      setValue('00:121:00');
+      tpl = el.outerHTML;
+      expect(tpl).toContain('ng-invalid-sa-duration');
+      setValue('02:00:00');
+      tpl = el.outerHTML;
+      expect(tpl).toContain('ng-invalid-sa-duration');
+    });
+
+    it('correctly validates DD-HH:MM:SS format', function() {
+      var el, tpl;
+      el = element[0];
+
+      $scope.minDuration = 1440;
+      $scope.maxDuration = 2880;
+      // valid
+      setValue('02-00:00:00');
+      tpl = el.outerHTML;
+      expect(tpl).not.toContain('ng-invalid-sa-duration');
+      setValue('00-48:00:00');
+      tpl = el.outerHTML;
+      expect(tpl).not.toContain('ng-invalid-sa-duration');
+      // invalid min
+      setValue('00-23:00:00');
+      tpl = el.outerHTML;
+      expect(tpl).toContain('ng-invalid-sa-duration');
+      // invalid max
+      setValue('02-01:00:00');
+      tpl = el.outerHTML;
+      expect(tpl).toContain('ng-invalid-sa-duration');
+      setValue('00-49:00:00');
+      tpl = el.outerHTML;
+      expect(tpl).toContain('ng-invalid-sa-duration');
     });
   });
 });
