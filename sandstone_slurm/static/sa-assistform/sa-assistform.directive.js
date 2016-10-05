@@ -110,7 +110,7 @@ angular.module('sandstone.slurm')
 
       /**
         * @function addField
-        * This is the function bound to the typeahead add button.
+        * This is the function bound to the add field button and the typeahead onSelect
         */
       $scope.addField = function() {
         var sel = $scope.selectedProp;
@@ -118,22 +118,6 @@ angular.module('sandstone.slurm')
         if (props.indexOf(sel) >= 0) {
           $scope.fieldNames.push(sel);
           $scope.selectedProp = '';
-        }
-      };
-
-      /**
-        * @function onTypeaheadKey
-        * This is the event handler bound to the typeahead field, called
-        * when the user hits enter.
-        */
-      $scope.onTypeaheadKey = function($event) {
-        if ($event.which===13){
-          var sel = $scope.selectedProp;
-          var props = $scope.getProperties();
-          if (props.indexOf(sel) >= 0) {
-            $scope.fieldNames.push(sel);
-            $scope.selectedProp = '';
-          }
         }
       };
 

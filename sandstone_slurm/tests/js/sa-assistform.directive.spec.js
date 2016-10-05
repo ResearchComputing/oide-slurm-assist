@@ -164,12 +164,24 @@ describe('sandstone.slurm.sa-assistform', function() {
     });
 
     it('addField', function() {
+      isolateScope.selectedProfile = 'test1';
+      // no selected prop
       isolateScope.fieldNames = [];
-      isolateScope.addField('time');
+      isolateScope.selectedProp = undefined;
+      isolateScope.addField();
+      expect(isolateScope.fieldNames).toEqual([]);
+      // invalid prop
+      isolateScope.fieldNames = [];
+      isolateScope.selectedProp = 'invalid';
+      isolateScope.addField();
+      expect(isolateScope.fieldNames).toEqual([]);
+      // valid props
+      isolateScope.fieldNames = [];
+      isolateScope.selectedProp = 'time';
+      isolateScope.addField();
       expect(isolateScope.fieldNames).toEqual(['time']);
-      isolateScope.addField('account');
-      expect(isolateScope.fieldNames).toEqual(['time','account']);
-      isolateScope.addField('');
+      isolateScope.selectedProp = 'account';
+      isolateScope.addField();
       expect(isolateScope.fieldNames).toEqual(['time','account']);
     });
 
@@ -231,24 +243,6 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(isolateScope.selectedProfile).toEqual('test3');
       expect(isolateScope.fieldNames).toEqual(['time','account']);
       expect(isolateScope.sbatch).toEqual({time: '00:30:00', account: 'test_acct2'});
-    });
-
-    it('onTypeaheadKey', function() {
-      // Mock enter keypress event
-      var e = {which: 13};
-      isolateScope.selectedProfile = 'test1';
-      isolateScope.fieldNames = [];
-      isolateScope.selectedProp = 'time';
-      isolateScope.onTypeaheadKey(e);
-      expect(isolateScope.fieldNames).toEqual(['time']);
-      expect(isolateScope.selectedProfile).toEqual('test1');
-      expect(isolateScope.selectedProp).toEqual('');
-      // Select an invalid property
-      isolateScope.selectedProp = 'invalid';
-      isolateScope.onTypeaheadKey(e);
-      expect(isolateScope.fieldNames).toEqual(['time']);
-      expect(isolateScope.selectedProfile).toEqual('test1');
-      expect(isolateScope.selectedProp).toEqual('invalid');
     });
 
     it('getProperties', function() {
@@ -488,7 +482,6 @@ describe('sandstone.slurm.sa-assistform', function() {
     });
 
     it('add a field to the form', function() {
-      var mockEvent = {which: 13};
       // Profile must be selected to add fields
       isolateScope.selectedProfile = 'test1';
       $scope.$digest();
@@ -498,7 +491,7 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(fields.length).toEqual(2);
       // Add a field, selectedProp empty
       isolateScope.selectedProp = '';
-      isolateScope.onTypeaheadKey(mockEvent);
+      isolateScope.addField();
       $scope.$digest();
       tpl = element.html()
       fields = getFieldsFromTpl(tpl);
@@ -507,7 +500,7 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(isolateScope.selectedProp).toEqual('');
       // Add a field, selectedProp invalid
       isolateScope.selectedProp = 'invalid';
-      isolateScope.onTypeaheadKey(mockEvent);
+      isolateScope.addField();
       $scope.$digest();
       tpl = element.html()
       fields = getFieldsFromTpl(tpl);
@@ -516,7 +509,7 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(isolateScope.selectedProp).toEqual('invalid');
       // Add a field, selectedProp already in form
       isolateScope.selectedProp = 'time';
-      isolateScope.onTypeaheadKey(mockEvent);
+      isolateScope.addField();
       $scope.$digest();
       tpl = element.html()
       fields = getFieldsFromTpl(tpl);
@@ -525,7 +518,7 @@ describe('sandstone.slurm.sa-assistform', function() {
       expect(isolateScope.selectedProp).toEqual('time');
       // Add a field, selectedProp valid
       isolateScope.selectedProp = 'node';
-      isolateScope.onTypeaheadKey(mockEvent);
+      isolateScope.addField();
       $scope.$digest();
       tpl = element.html()
       fields = getFieldsFromTpl(tpl);
