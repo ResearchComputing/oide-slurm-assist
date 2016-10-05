@@ -41,9 +41,11 @@
         class="form-group"
         ng-show="selectedProfile!=''">
         <label>Add Directives</label>
-        <div class="input-group">
+        <div class="input-group" ng-class="{'has-success':propValid()}">
           <input
             typeahead-focus
+            typeahead-min-length="0"
+            typeahead-on-select="addField()"
             type="text"
             class="form-control"
             ng-model="selectedProp"
