@@ -36,6 +36,7 @@ script:
     - npm install
 
     - cd $PROJECT_ROOT
+    - pip install -r requirements.txt
     - echo $(pwd) >> $PATH_FILE
     - cd sandstone_slurm
     - bower install

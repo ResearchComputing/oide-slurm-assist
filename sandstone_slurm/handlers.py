@@ -5,6 +5,7 @@ import sandstone.lib.decorators
 from sandstone_slurm.mixins.slurm_mixin import SlurmCmdMixin
 from sandstone.lib.handlers.base import BaseHandler
 from sandstone_slurm.config_utils import ConfigLoader
+from sandstone_slurm.script_template_utils import TemplateFinder
 from sandstone import settings
 
 
@@ -56,3 +57,20 @@ class JobHandler(BaseHandler,SlurmCmdMixin):
         # This method should dequeue the job specified
         # by jobid, via scancel.
         pass
+
+class ScriptTemplateHandler(BaseHandler):
+
+    @sandstone.lib.decorators.authenticated
+    def get(self):
+        # get all the templates
+        templates = TemplateFinder.find_all_templates()
+
+        parsed_json = {
+            'templates': []
+        }
+
+        for template in templates:
+            # parse the template
+            parsed_json['templates'].append(template.parse())
+
+        self.write(parsed_json)

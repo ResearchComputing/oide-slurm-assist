@@ -1,0 +1,14 @@
+{
+    "title": "Some JSON template",
+    "description": "Some Description",
+    "command": "ls | grep $SANDSTONE_SEARCH_EXPRESSION",
+    "variables": {
+        "type": "object",
+        "properties": {
+            "$SANDSTONE_SEARCH_EXPRESSION": {
+                "type": "string",
+                "description": "Some Sample description"
+            }
+        }
+    }
+}
