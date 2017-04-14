@@ -1,5 +1,5 @@
 <div class="modal-header">
-  <h3 class="modal-title">{{title}}</h3>
+  <h3 class="modal-title">{{ctrl.title}}</h3>
 </div>
 <div class="modal-body">
   <div class="container-fluid">
@@ -7,37 +7,27 @@
       <div class="form-group form-group-sm">
         <label class="col-sm-3 control-label">File Name</label>
         <div class="col-sm-6">
-          <input
-            class="form-control"
-            type="text"
-            ng-required="true"
-            ng-model="newFile.filename"
-            ng-change="updateSaveName()">
+          <input id="filename-input" class="form-control" type="text" ng-model="ctrl.newFile.name">
         </div>
       </div>
       <div class="form-group form-group-sm">
         <label class="col-sm-3 control-label">Save Directory</label>
         <div class="col-sm-6">
-          <input class="form-control" type="text" ng-model="newFile.filepath" ng-disabled="true">
+          <input class="form-control" type="text" ng-model="ctrl.newFile.dirpath" ng-disabled="true">
         </div>
       </div>
     </form>
-    <div class="col-sm-7 col-sm-offset-2 modal-filetree">
-      <div
-        sandstone-filetree
-        tree-data="treeData"
-        selection-desc="sd"
-        leaf-level="file">
-      </div>
+    <div id="saveas-ft-container" class="col-sm-7 col-sm-offset-2">
+      <div sandstone-filetree tree-data="ctrl.treeData" tree-options="ctrl.treeOptions" on-select="ctrl.filetreeOnSelect(node,selected)"></div>
     </div>
   </div>
 </div>
 <div class="modal-footer">
   <button
     class="btn btn-success"
-    ng-click="saveAs()"
-    ng-disabled="invalidFilepath||form.$invalid">
-    {{title}}
+    ng-click="ctrl.saveAs()"
+    ng-disabled="!ctrl.validFilepath()">
+    {{ctrl.title}}
   </button>
-  <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+  <button class="btn btn-warning" ng-click="ctrl.cancel()">Cancel</button>
 </div>
