@@ -21,8 +21,8 @@ angular.module('sandstone.slurm')
       var deferredLoadScript = FilesystemService.getFileContents(filepath);
       deferredLoadScript.then(function(scriptContents) {
         deferred.resolve(scriptContents);
-      },function(data,status) {
-        deferred.reject(data,status);
+      },function(data) {
+        deferred.reject(data);
       });
     },
     saveScript: function (filepath,content) {
@@ -32,7 +32,7 @@ angular.module('sandstone.slurm')
         var writeFile = FilesystemService.writeFileContents(filepath,content);
         writeFile.then(function(data) {
           deferred.resolve();
-        },function(data,status) {
+        },function(data) {
           deferred.reject();
         });
       };
@@ -41,16 +41,16 @@ angular.module('sandstone.slurm')
         var createFile = FilesystemService.createFile(filepath);
         createFile.then(function(data) {
           writeContents(filepath,content);
-        },function(data,status) {
+        },function(data) {
           deferred.reject();
         });
       };
 
       var fileExists = FilesystemService.getFileDetails(filepath);
-      fileExist.then(function(fileDetails) {
+      fileExists.then(function(fileDetails) {
         writeContents(content);
-      },function(data,status) {
-        if(status === 404) {
+      },function(data) {
+        if(data.status === 404) {
           // Create the file first
           createAndWriteContents(filepath,content);
         }
