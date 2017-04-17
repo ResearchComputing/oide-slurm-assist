@@ -59,6 +59,7 @@ angular.module('sandstone.slurm')
       },function(data) {
         deferred.reject(data);
       });
+      return deferred.promise;
     },
     saveScript: saveScript,
     submitScript: function (filepath,content) {

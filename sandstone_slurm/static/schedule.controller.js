@@ -109,6 +109,7 @@ angular.module('sandstone.slurm')
     var loadScriptModalInstance = $modal.open({
       templateUrl: '/static/slurm/templates/modals/loadscript.modal.html',
       controller: 'LoadScriptCtrl',
+      controllerAs: 'ctrl',
       size: 'lg'
     });
     loadScriptModalInstance.result.then(
@@ -165,7 +166,7 @@ angular.module('sandstone.slurm')
         };
 
         var deferredLoadScript = ScheduleService.loadScript(filepath);
-        deferredLoadScript.then(onScriptLoad(contents),function() {
+        deferredLoadScript.then(onScriptLoad,function() {
           AlertService.addAlert({
             type: 'danger',
             message: 'Failed to load script ' + filepath
@@ -262,33 +263,40 @@ angular.module('sandstone.slurm')
     $modalInstance.dismiss('cancel');
   };
 }])
-.controller('LoadScriptCtrl', ['$scope','$modalInstance',function($scope,$modalInstance) {
-  $scope.treeData = {
-    filetreeContents: [],
-    selectedNodes: []
+.controller('LoadScriptCtrl', ['$scope','$modalInstance','FilesystemService',function($scope,$modalInstance,FilesystemService) {
+  var self = this;
+
+  self.treeData = {
+    contents: [],
+    selected: [],
+    expanded: []
   };
 
-  $scope.loadFile = {
-    filename: '',
-    filepath: '-/'
-  }
-  $scope.invalidFilepath = true;
+  var valid = false;
 
-  $scope.$watch(function(){
-    return $scope.treeData.selectedNodes;
-  }, function(newValue){
-    if ((newValue.length > 0) && (newValue[0].type === 'file')) {
-      $scope.loadFile.filename = newValue[0].filename;
-      $scope.loadFile.filepath = newValue[0].filepath.replace(newValue[0].filename,'');
-      $scope.invalidFilepath = false;
+  self.filetreeOnSelect = function(node,selected) {
+    if (selected) {
+      if (node.type === 'file') {
+        self.loadFile.filepath = node.filepath;
+        valid = true;
+      }
     }
-  });
+  };
 
-  $scope.loadScript = function () {
-    var filepath = $scope.loadFile.filepath + $scope.loadFile.filename;
+  self.loadFile = {
+    filepath: ''
+  };
+
+  self.validFilepath = function() {
+    return valid;
+  };
+
+  self.loadScript = function () {
+    var filepath;
+    var filepath = FilesystemService.normalize(self.loadFile.filepath);
     $modalInstance.close(filepath);
   };
-  $scope.cancel = function () {
+  self.cancel = function () {
     $modalInstance.dismiss('cancel');
   };
 }]);
