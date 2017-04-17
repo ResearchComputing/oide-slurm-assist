@@ -50,6 +50,7 @@ angular.module('sandstone.slurm')
     var submitScriptModalInstance = $modal.open({
       templateUrl: '/static/slurm/templates/modals/savescript.modal.html',
       controller: 'SaveScriptCtrl',
+      controllerAs: 'ctrl',
       backdrop: 'static',
       keyboard: false,
       size: 'lg',

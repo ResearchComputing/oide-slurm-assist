@@ -4,6 +4,41 @@ angular.module('sandstone.slurm')
 
 .factory('ScheduleService', ['$http','$log','$q','FilesystemService','AlertService',function($http,$log,$q,FilesystemService,AlertService) {
   var formConfig;
+
+  var saveScript = function (filepath,content) {
+    var deferred = $q.defer();
+
+    var writeContents = function(contents) {
+      var writeFile = FilesystemService.writeFileContents(filepath,content);
+      writeFile.then(function(data) {
+        deferred.resolve();
+      },function(data) {
+        deferred.reject();
+      });
+    };
+
+    var createAndWriteContents = function(filepath,contents) {
+      var createFile = FilesystemService.createFile(filepath);
+      createFile.then(function(data) {
+        writeContents(filepath,content);
+      },function(data) {
+        deferred.reject();
+      });
+    };
+
+    var fileExists = FilesystemService.getFileDetails(filepath);
+    fileExists.then(function(fileDetails) {
+      writeContents(content);
+    },function(data) {
+      if(data.status === 404) {
+        // Create the file first
+        createAndWriteContents(filepath,content);
+      }
+    });
+
+    return deferred.promise;
+  };
+
   return {
     loadFormConfig: function() {
       return $http
@@ -25,43 +60,11 @@ angular.module('sandstone.slurm')
         deferred.reject(data);
       });
     },
-    saveScript: function (filepath,content) {
-      var deferred = $q.defer();
-
-      var writeContents = function(contents) {
-        var writeFile = FilesystemService.writeFileContents(filepath,content);
-        writeFile.then(function(data) {
-          deferred.resolve();
-        },function(data) {
-          deferred.reject();
-        });
-      };
-
-      var createAndWriteContents = function(filepath,contents) {
-        var createFile = FilesystemService.createFile(filepath);
-        createFile.then(function(data) {
-          writeContents(filepath,content);
-        },function(data) {
-          deferred.reject();
-        });
-      };
-
-      var fileExists = FilesystemService.getFileDetails(filepath);
-      fileExists.then(function(fileDetails) {
-        writeContents(content);
-      },function(data) {
-        if(data.status === 404) {
-          // Create the file first
-          createAndWriteContents(filepath,content);
-        }
-      });
-
-      return deferred.promise;
-    },
+    saveScript: saveScript,
     submitScript: function (filepath,content) {
       var deferred = $q.defer();
 
-      var deferredSaveScript = ScheduleService.saveScript(filepath,content);
+      var deferredSaveScript = saveScript(filepath,content);
       deferredSaveScript.then(function() {
         $http({
           url: "/slurm/a/jobs",
@@ -79,6 +82,8 @@ angular.module('sandstone.slurm')
       },function() {
         deferred.reject();
       });
+
+      return deferred.promise;
     }
   };
 }]);
