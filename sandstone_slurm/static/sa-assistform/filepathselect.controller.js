@@ -32,58 +32,56 @@ angular.module('sandstone.slurm')
     );
   };
 }])
-.controller('FiletreeSelectCtrl', ['$scope','$modalInstance','filepath','dironly',function($scope,$modalInstance,filepath,dironly) {
+.controller('FiletreeSelectCtrl', ['$scope','$modalInstance','FilesystemService','filepath','dironly',function($scope,$modalInstance,FilesystemService,filepath,dironly) {
   $scope.dironly = dironly;
   $scope.title = "Select or create filepath";
   if (dironly) {
     $scope.title = "Select directory";
   }
+
   $scope.treeData = {
-    filetreeContents: [],
-    selectedNodes: []
+    contents: [],
+    selected: [],
+    expanded: []
   };
 
-  if (filepath) {
-    var fn = filepath.substring(filepath.lastIndexOf('/')+1);
-    var dn = filepath.replace(fn, '');
-    $scope.newFile = {
-      filename: fn,
-      filepath: dn
-    }
-    $scope.invalidFilepath = false;
-  } else {
-    $scope.newFile = {
-      filename: '',
-      filepath: '-/'
-    }
-    $scope.invalidFilepath = true;
-  }
-
-  $scope.$watch(function(){
-    return $scope.treeData.selectedNodes;
-  }, function(newValue){
-    if(newValue.length > 0) {
-      if (newValue[0].type === 'file') {
-        $scope.newFile.filename = newValue[0].filename;
-        $scope.newFile.filepath = newValue[0].filepath.replace(newValue[0].filename,'');
+  $scope.filetreeOnSelect = function(node,selected) {
+    if (selected) {
+      if ( (node.type === 'directory') || (node.type === 'volume') ) {
+        $scope.newFile.dirpath = node.filepath;
       } else {
-        $scope.newFile.filepath = newValue[0].filepath;
-        if (newValue[0].filepath.substr(newValue[0].filepath.length-1) !== '/') {
-          $scope.newFile.filepath = $scope.newFile.filepath + '/';
-        }
+        $scope.newFile.dirpath = node.dirpath;
+        $scope.newFile.name = node.name;
       }
     }
-    $scope.updateSaveName();
-  });
+  };
 
-  $scope.updateSaveName = function () {
-    if ($scope.newFile.filepath.substr(0,1) !== '-') {
-      $scope.invalidFilepath = false;
+  $scope.newFile = {
+    name: '',
+    dirpath: '-/'
+  };
+
+  $scope.validFilepath = function() {
+    var valid = false;
+    if(dironly) {
+      valid = ($scope.newFile.dirpath.length > 0);
+      valid = valid && (FilesystemService.isAbsolute($scope.newFile.dirpath));
+    } else {
+      valid = ($scope.newFile.name.length && $scope.newFile.dirpath.length);
+      valid = valid && (FilesystemService.isAbsolute($scope.newFile.dirpath));
     }
+    return valid;
   };
 
   $scope.selectPath = function () {
-    var filepath = $scope.newFile.filepath + $scope.newFile.filename;
+    var filepath;
+    var dirpath;
+    dirpath = FilesystemService.normalize($scope.newFile.dirpath);
+    if(dironly) {
+      filepath = dirpath;
+    } else {
+      filepath = FilesystemService.join(dirpath,$scope.newFile.name);
+    }
     $modalInstance.close(filepath);
   };
 

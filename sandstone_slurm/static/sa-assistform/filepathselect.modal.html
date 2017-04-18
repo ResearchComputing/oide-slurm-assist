@@ -7,18 +7,18 @@
       <div class="form-group form-group-sm" ng-hide="dironly">
         <label class="col-sm-3 control-label">File Name <small>(empty for directory)</small></label>
         <div class="col-sm-6">
-          <input class="form-control" type="text" ng-model="newFile.filename" ng-disabled="dironly">
+          <input class="form-control" type="text" ng-model="newFile.name" ng-disabled="dironly">
         </div>
       </div>
       <div class="form-group form-group-sm">
         <label class="col-sm-3 control-label">Directory</label>
         <div class="col-sm-6">
-          <input class="form-control" type="text" ng-model="newFile.filepath" disabled>
+          <input class="form-control" type="text" ng-model="newFile.dirpath" disabled>
         </div>
       </div>
     </form>
     <div class="col-sm-7 col-sm-offset-2 modal-filetree">
-      <div sandstone-filetree tree-data="treeData" leaf-level="file" selection-desc="sd"></div>
+      <div sandstone-filetree tree-data="treeData" tree-options="treeOptions" on-select="filetreeOnSelect(node,selected)"></div>
     </div>
   </div>
 </div>
@@ -26,7 +26,7 @@
   <button
     class="btn btn-success"
     ng-click="selectPath()"
-    ng-disabled="invalidFilepath">
+    ng-disabled="!validFilepath()">
     Select Path
   </button>
   <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
