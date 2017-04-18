@@ -74,7 +74,7 @@ angular.module('sandstone.slurm')
         })
         .success(function(data, status, header, config) {
           $log.debug('Submitted: ', filepath);
-          deferred.resolve(data, status);
+          deferred.resolve(data);
         })
         .error(function(data, status, header, config) {
           $log.error("Submission failed:", data ,status, header, config);

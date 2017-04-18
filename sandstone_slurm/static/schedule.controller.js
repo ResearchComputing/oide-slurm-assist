@@ -70,7 +70,7 @@ angular.module('sandstone.slurm')
     submitScriptModalInstance.result.then(
       function(filepath) {
         var deferredSubmitScript = ScheduleService.submitScript(filepath,contents);
-        deferredSubmitScript.then(function() {
+        deferredSubmitScript.then(function(data) {
           var submitStatusModalInstance = $modal.open({
             templateUrl: '/static/slurm/templates/modals/submitstatus.modal.html',
             controller: 'SubmitStatusCtrl',
@@ -78,9 +78,6 @@ angular.module('sandstone.slurm')
             resolve: {
               data: function () {
                 return data;
-              },
-              status: function() {
-                return status;
               }
             }
           });
@@ -175,8 +172,7 @@ angular.module('sandstone.slurm')
       });
   };
 }])
-.controller('SubmitStatusCtrl', ['$scope','$modalInstance','data','status',function($scope,$modalInstance,data,status) {
-  $scope.successful = status === 200;
+.controller('SubmitStatusCtrl', ['$scope','$modalInstance','data',function($scope,$modalInstance,data) {
   $scope.output = data.output;
   $scope.dismiss = function () {
     $modalInstance.dismiss('dismiss');
