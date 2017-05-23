@@ -2,7 +2,7 @@
 
 angular.module('sandstone.slurm')
 
-.controller('ScheduleCtrl', ['$log','$modal','$rootScope','ScheduleService','AlertService',function($log,$modal,$rootScope,ScheduleService,AlertService) {
+.controller('ScheduleCtrl', ['$log','$uibModal','$rootScope','ScheduleService','AlertService',function($log,$uibModal,$rootScope,ScheduleService,AlertService) {
   var self = this;
 
   self.sbatch = {};
@@ -14,7 +14,7 @@ angular.module('sandstone.slurm')
   self.formConfig = ScheduleService.getFormConfig();
   self.saveScript = function() {
     var contents = self.sbatchScript;
-    var saveScriptModalInstance = $modal.open({
+    var saveScriptModalInstance = $uibModal.open({
       templateUrl: '/static/slurm/templates/modals/savescript.modal.html',
       controller: 'SaveScriptCtrl',
       controllerAs: 'ctrl',
@@ -47,7 +47,7 @@ angular.module('sandstone.slurm')
   };
   self.submitScript = function() {
     var contents = self.sbatchScript;
-    var submitScriptModalInstance = $modal.open({
+    var submitScriptModalInstance = $uibModal.open({
       templateUrl: '/static/slurm/templates/modals/savescript.modal.html',
       controller: 'SaveScriptCtrl',
       controllerAs: 'ctrl',
@@ -71,7 +71,7 @@ angular.module('sandstone.slurm')
       function(filepath) {
         var deferredSubmitScript = ScheduleService.submitScript(filepath,contents);
         deferredSubmitScript.then(function(data) {
-          var submitStatusModalInstance = $modal.open({
+          var submitStatusModalInstance = $uibModal.open({
             templateUrl: '/static/slurm/templates/modals/submitstatus.modal.html',
             controller: 'SubmitStatusCtrl',
             // size: 'lg',
@@ -90,7 +90,7 @@ angular.module('sandstone.slurm')
       });
   };
   self.getEstimate = function() {
-    var estimateModalInstance = $modal.open({
+    var estimateModalInstance = $uibModal.open({
       templateUrl: '/static/slurm/templates/modals/estimate.modal.html',
       controller: 'EstimateCtrl',
       size: 'lg',
@@ -103,7 +103,7 @@ angular.module('sandstone.slurm')
   };
 
   self.loadScript = function() {
-    var loadScriptModalInstance = $modal.open({
+    var loadScriptModalInstance = $uibModal.open({
       templateUrl: '/static/slurm/templates/modals/loadscript.modal.html',
       controller: 'LoadScriptCtrl',
       controllerAs: 'ctrl',
@@ -172,13 +172,13 @@ angular.module('sandstone.slurm')
       });
   };
 }])
-.controller('SubmitStatusCtrl', ['$scope','$modalInstance','data',function($scope,$modalInstance,data) {
+.controller('SubmitStatusCtrl', ['$scope','$uibModalInstance','data',function($scope,$uibModalInstance,data) {
   $scope.output = data.output;
   $scope.dismiss = function () {
-    $modalInstance.dismiss('dismiss');
+    $uibModalInstance.dismiss('dismiss');
   };
 }])
-.controller('EstimateCtrl', ['$scope','$modalInstance','sbatch',function($scope,$modalInstance,sbatch) {
+.controller('EstimateCtrl', ['$scope','$uibModalInstance','sbatch',function($scope,$uibModalInstance,sbatch) {
   $scope.sbatch = sbatch;
   // nodes * time (min) * 12 (no node sharing)
   $scope.estimate = {
@@ -187,7 +187,7 @@ angular.module('sandstone.slurm')
   };
 
   $scope.dismiss = function () {
-    $modalInstance.dismiss('cancel');
+    $uibModalInstance.dismiss('cancel');
   };
 
   if (sbatch.hasOwnProperty('nodes')) {
@@ -206,7 +206,7 @@ angular.module('sandstone.slurm')
     }
   }
 }])
-.controller('SaveScriptCtrl', ['$scope','$modalInstance','file','action', 'FilesystemService',function($scope,$modalInstance,file,action,FilesystemService) {
+.controller('SaveScriptCtrl', ['$scope','$uibModalInstance','file','action', 'FilesystemService',function($scope,$uibModalInstance,file,action,FilesystemService) {
   var self = this;
 
   if (action === 'save') {
@@ -252,14 +252,14 @@ angular.module('sandstone.slurm')
       filepath += '.sh';
     }
 
-    $modalInstance.close(filepath);
+    $uibModalInstance.close(filepath);
   };
 
   self.cancel = function () {
-    $modalInstance.dismiss('cancel');
+    $uibModalInstance.dismiss('cancel');
   };
 }])
-.controller('LoadScriptCtrl', ['$scope','$modalInstance','FilesystemService',function($scope,$modalInstance,FilesystemService) {
+.controller('LoadScriptCtrl', ['$scope','$uibModalInstance','FilesystemService',function($scope,$uibModalInstance,FilesystemService) {
   var self = this;
 
   self.treeData = {
@@ -290,9 +290,9 @@ angular.module('sandstone.slurm')
   self.loadScript = function () {
     var filepath;
     var filepath = FilesystemService.normalize(self.loadFile.filepath);
-    $modalInstance.close(filepath);
+    $uibModalInstance.close(filepath);
   };
   self.cancel = function () {
-    $modalInstance.dismiss('cancel');
+    $uibModalInstance.dismiss('cancel');
   };
 }]);

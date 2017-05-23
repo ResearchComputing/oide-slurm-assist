@@ -2,11 +2,11 @@
 
 angular.module('sandstone.slurm')
 
-.controller('FilepathSelectCtrl', ['$log','$scope','$modal',function($log,$scope,$modal) {
+.controller('FilepathSelectCtrl', ['$log','$scope','$uibModal',function($log,$scope,$uibModal) {
   var self = this;
 
   self.selectFilepath = function() {
-    var selectFilepathModalInstance = $modal.open({
+    var selectFilepathModalInstance = $uibModal.open({
       templateUrl: '/static/slurm/sa-assistform/filepathselect.modal.html',
       controller: 'FiletreeSelectCtrl',
       controllerAs: 'ctrl',
@@ -32,7 +32,7 @@ angular.module('sandstone.slurm')
     );
   };
 }])
-.controller('FiletreeSelectCtrl', ['$scope','$modalInstance','FilesystemService','filepath','dironly',function($scope,$modalInstance,FilesystemService,filepath,dironly) {
+.controller('FiletreeSelectCtrl', ['$scope','$uibModalInstance','FilesystemService','filepath','dironly',function($scope,$uibModalInstance,FilesystemService,filepath,dironly) {
   $scope.dironly = dironly;
   $scope.title = "Select or create filepath";
   if (dironly) {
@@ -82,10 +82,10 @@ angular.module('sandstone.slurm')
     } else {
       filepath = FilesystemService.join(dirpath,$scope.newFile.name);
     }
-    $modalInstance.close(filepath);
+    $uibModalInstance.close(filepath);
   };
 
   $scope.cancel = function () {
-    $modalInstance.dismiss('cancel');
+    $uibModalInstance.dismiss('cancel');
   };
 }]);

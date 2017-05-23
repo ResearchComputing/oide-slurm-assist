@@ -17,9 +17,10 @@
             <div class="input-group-addon sa-assist-help-btn">
               <button
                 class="btn"
-                popover-trigger="mouseenter"
+                popover-trigger="'focus'"
                 popover-placement="left"
-                popover="Select the profile that best describes the job being run."
+                uib-popover="Select the profile that best describes the job being run."
+                popover-trigger="'focus'"
                 popover-title="Select a profile to begin">
                 <i class="fa fa-question-circle" aria-hidden="true"></i>
               </button>
@@ -29,7 +30,7 @@
                 class="btn"
                 tooltip-trigger="mouseenter"
                 tooltip-placement="left"
-                tooltip="Reset form to profile default."
+                uib-tooltip="Reset form to profile default."
                 ng-disabled="form.profile.$invalid"
                 ng-click="resetDefaults()">
                 <i class="fa fa-refresh" aria-hidden="true"></i>
@@ -49,12 +50,12 @@
             type="text"
             class="form-control"
             ng-model="selectedProp"
-            typeahead="p for p in getProperties() | filter:$viewValue:emptyOrMatch">
+            uib-typeahead="p for p in getProperties() | filter:$viewValue:emptyOrMatch">
           <div class="input-group-addon sa-assist-help-btn">
             <button
               class="btn"
               tooltip-placement="left"
-              tooltip="Add a new directive"
+              uib-tooltip="Add a new directive"
               ng-click="addField()"
               ng-disabled="!propValid()">
               <i class="fa fa-plus" aria-hidden="true"></i>

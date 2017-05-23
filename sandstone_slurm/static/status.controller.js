@@ -2,7 +2,7 @@
 
 angular.module('sandstone.slurm')
 
-.controller('StatusCtrl', ['$log','$modal','StatusService',function($log,$modal,StatusService) {
+.controller('StatusCtrl', ['$log','$uibModal','StatusService',function($log,$uibModal,StatusService) {
   var self = this;
 
   self.queueCollection = [];
@@ -25,7 +25,7 @@ angular.module('sandstone.slurm')
   };
 
   self.getDetails = function(row) {
-    var detailModalInstance = $modal.open({
+    var detailModalInstance = $uibModal.open({
       templateUrl: '/static/slurm/templates/modals/jobdetail.modal.html',
       controller: 'DetailModalCtrl',
       size: 'lg',
@@ -37,7 +37,7 @@ angular.module('sandstone.slurm')
     });
   };
 }])
-.controller('DetailModalCtrl', ['$scope','$log','$modalInstance','job',function($scope,$log,$modalInstance,job) {
+.controller('DetailModalCtrl', ['$scope','$log','$uibModalInstance','job',function($scope,$log,$uibModalInstance,job) {
   $scope.job = job;
 
   var shortAttrList = [
@@ -78,6 +78,6 @@ angular.module('sandstone.slurm')
   };
 
   $scope.dismiss = function () {
-    $modalInstance.dismiss('cancel');
+    $uibModalInstance.dismiss('cancel');
   };
 }]);
