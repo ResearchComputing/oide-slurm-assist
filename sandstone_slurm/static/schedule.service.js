@@ -78,7 +78,7 @@ angular.module('sandstone.slurm')
         })
         .error(function(data, status, header, config) {
           $log.error("Submission failed:", data ,status, header, config);
-          deferred.reject();
+          deferred.reject({data:data,status:status});
         });
       },function() {
         deferred.reject();

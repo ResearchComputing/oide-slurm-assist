@@ -81,10 +81,10 @@ angular.module('sandstone.slurm')
               }
             }
           });
-        },function() {
+        },function(res) {
           AlertService.addAlert({
             type: 'danger',
-            message: 'Failed to submit job.'
+            message: 'Failed to submit job. ' + res.data.output
           });
         });
       });
