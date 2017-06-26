@@ -4,6 +4,18 @@ angular.module('sandstone.slurm')
 
 .factory('ScheduleService', ['$http','$log','$q','FilesystemService','AlertService',function($http,$log,$q,FilesystemService,AlertService) {
   var formConfig;
+  var activeFile = undefined;
+
+  var getActiveFile = function() {
+    return activeFile;
+  };
+  var setActiveFile = function(filepath) {
+    var fp = undefined;
+    if(filepath) {
+      fp = filepath;
+    }
+    activeFile =  fp;
+  };
 
   var saveScript = function (filepath,content) {
     var deferred = $q.defer();
@@ -11,8 +23,10 @@ angular.module('sandstone.slurm')
     var writeContents = function(contents) {
       var writeFile = FilesystemService.writeFileContents(filepath,content);
       writeFile.then(function(data) {
+        setActiveFile(filepath);
         deferred.resolve();
       },function(data) {
+        setActiveFile();
         deferred.reject();
       });
     };
@@ -40,6 +54,8 @@ angular.module('sandstone.slurm')
   };
 
   return {
+    getActiveFile: getActiveFile,
+    setActiveFile: setActiveFile,
     loadFormConfig: function() {
       return $http
         .get('/slurm/a/config')
@@ -62,28 +78,21 @@ angular.module('sandstone.slurm')
       return deferred.promise;
     },
     saveScript: saveScript,
-    submitScript: function (filepath,content) {
+    submitScript: function (filepath) {
       var deferred = $q.defer();
-
-      var deferredSaveScript = saveScript(filepath,content);
-      deferredSaveScript.then(function() {
-        $http({
-          url: "/slurm/a/jobs",
-          method: "POST",
-          data:{'content': filepath}
-        })
-        .success(function(data, status, header, config) {
-          $log.debug('Submitted: ', filepath);
-          deferred.resolve(data);
-        })
-        .error(function(data, status, header, config) {
-          $log.error("Submission failed:", data ,status, header, config);
-          deferred.reject({data:data,status:status});
-        });
-      },function() {
-        deferred.reject();
+      var deferredSubmitScript = $http({
+        url: "/slurm/a/jobs",
+        method: "POST",
+        data:{'content': filepath}
+      })
+      .success(function(data, status, header, config) {
+        $log.debug('Submitted: ', filepath);
+        deferred.resolve(data);
+      })
+      .error(function(data, status, header, config) {
+        $log.error("Submission failed:", data ,status, header, config);
+        deferred.reject({data:data,status:status});
       });
-
       return deferred.promise;
     }
   };
