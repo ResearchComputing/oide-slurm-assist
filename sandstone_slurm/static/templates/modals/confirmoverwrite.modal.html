@@ -1,0 +1,16 @@
+<div class="modal-header">
+    <h3 class="modal-title"><i class="fa fa-exclamation fa-border"></i> Confirm Overwrite</h3>
+</div>
+<div class="modal-body">
+  <span class="modal-body-message">The following file will be overwritten with your changes.</span><span class="modal-body-message">Would you like to save changes to this file or create a new one?</span>
+    <ul>
+      <li>
+        {{ ctrl.filepath }}
+      </li>
+    </ul>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-danger" ng-click="ctrl.cancel()">Cancel</button>
+  <button class="btn btn-primary" ng-click="ctrl.saveAs()">Save New File</button>
+  <button class="btn btn-primary" ng-click="ctrl.overwrite()">Save Changes</button>
+</div>
